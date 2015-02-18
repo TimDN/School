@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 4.0.4
+- http://www.phpmyadmin.net
+-
+- Värd: localhost
+- Skapad: 06 nov 2013 kl 13:49
+- Serverversion: 5.6.12-log
+- PHP-version: 5.4.12
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="http://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="test" collation="latin1_swedish_ci" charset="latin1">
+            <pma:table name="matratt">
+                CREATE TABLE `matratt` (
+                  `matId` int(8) NOT NULL AUTO_INCREMENT,
+                  `Namn` varchar(255) COLLATE utf8_swedish_ci NOT NULL,
+                  `Ingredienser` varchar(255) COLLATE utf8_swedish_ci NOT NULL COMMENT 'Borde Flyttas ut till en egen tabell',
+                  `Allergi` varchar(255) COLLATE utf8_swedish_ci NOT NULL,
+                  `Bild` varchar(50) COLLATE utf8_swedish_ci NOT NULL,
+                  `pris` int(10) NOT NULL,
+                  PRIMARY KEY (`matId`),
+                  UNIQUE KEY `Namn` (`Namn`)
+                ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Databas: 'test'
+    -->
+    <database name="test">
+        <!-- Tabell matratt -->
+        <table name="matratt">
+            <column name="matId">1</column>
+            <column name="Namn">Köttfärssås och spagetti</column>
+            <column name="Ingredienser">Köttfärs.Spagetti,Lök,KrossadTomat</column>
+            <column name="Allergi"></column>
+            <column name="Bild">/Bild/kottfarssasOchSpagetti.png</column>
+            <column name="pris">50</column>
+        </table>
+        <table name="matratt">
+            <column name="matId">2</column>
+            <column name="Namn">Kassler på en kvart</column>
+            <column name="Ingredienser">Kassler,matYoghurt,sweetChiliSauce,lök,senap.isbergssallad,pasta</column>
+            <column name="Allergi"></column>
+            <column name="Bild">/Bild/KasslerPaEnKvart.png</column>
+            <column name="pris">40</column>
+        </table>
+    </database>
+</pma_xml_export>

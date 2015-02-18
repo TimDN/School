@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 4.0.4
+- http://www.phpmyadmin.net
+-
+- Värd: localhost
+- Skapad: 06 nov 2013 kl 13:48
+- Serverversion: 5.6.12-log
+- PHP-version: 5.4.12
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="http://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="test" collation="latin1_swedish_ci" charset="latin1">
+            <pma:table name="dag">
+                CREATE TABLE `dag` (
+                  `dagId` int(10) NOT NULL AUTO_INCREMENT,
+                  `Namn` varchar(50) COLLATE utf8_swedish_ci NOT NULL,
+                  PRIMARY KEY (`dagId`),
+                  UNIQUE KEY `Namn` (`Namn`)
+                ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Databas: 'test'
+    -->
+    <database name="test">
+        <!-- Tabell dag -->
+        <table name="dag">
+            <column name="dagId">1</column>
+            <column name="Namn">Måndag</column>
+        </table>
+        <table name="dag">
+            <column name="dagId">2</column>
+            <column name="Namn">Halloween</column>
+        </table>
+        <table name="dag">
+            <column name="dagId">3</column>
+            <column name="Namn">Tidag</column>
+        </table>
+        <table name="dag">
+            <column name="dagId">4</column>
+            <column name="Namn">Onsdag</column>
+        </table>
+        <table name="dag">
+            <column name="dagId">5</column>
+            <column name="Namn">Torsdag</column>
+        </table>
+        <table name="dag">
+            <column name="dagId">6</column>
+            <column name="Namn">Fredag</column>
+        </table>
+    </database>
+</pma_xml_export>
