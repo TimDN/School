@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Reversi 3D</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="popup.css">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#oldie { background-color: #ddd !important }
+		</style>
+	</head>
+	<body>
+		<audio autoplay loop id="bMusic">
+			<source src="materials/background.mp3">
+		</audio>
+
+		<script src="three.min.js"></script>
+		<script src="marker.js"></script>
+		<script src="player.js"></script>
+		<script src="board.js"></script>
+		<script src="Detector.js"></script>
+		<script src="js/init.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats;
+			var camera, scene, renderer;
+			var projector, plane, cube;
+			var mouse2D, mouse3D, raycaster,
+			rollOveredFace, isShiftDown = false,
+			theta = 45 * 0.5, isCtrlDown = false;
+			
+			var gameBoard = new Board();
+			var rollOverMesh, rollOverMaterial;
+			var voxelPosition = new THREE.Vector3(), tmpVec = new THREE.Vector3(), normalMatrix = new THREE.Matrix3();
+			var cubeGeo, cubeMaterial;
+			var i, intersector;
+			var playerTurn, clickSound;
+			var tempPosX, tempPosZ;
+			var directionalLight, startFlag = 0, isFullRow = 0;
+			
+			var markerMat, markerMesh, markerGeo;
+
+			var gameOver = 0;
+			
+			var markerMat, markerMesh, markerGeo;
+
+			init();
+			initBoard();
+			initPlayers();
+			animate();
+
+			function init() {
+			
+				initInterface();
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.y = 500;
+				
+				scene = new THREE.Scene();
+
+				// cubes
+
+				cubeGeo = new THREE.CubeGeometry( 50, 50, 50 );
+				cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "textures/square-outline-textured.png" ) } );
+				cubeMaterial.ambient = cubeMaterial.color;
+				
+				//markers
+				
+				var loader = new THREE.JSONLoader();
+				loader.load("materials/marker2.js", function(geometry){
+					markerMat = new THREE.MeshLambertMaterial({color: 0x333333});
+					markerMesh = new THREE.Mesh(geometry, material);
+					markerGeo = geometry;
+				});
+				
+				
+				// roll-over helpers
+				rollOverGeo = new THREE.CubeGeometry( 50, 50, 50 );
+				rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+				rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+				scene.add( rollOverMesh );
+
+				// picking
+
+				projector = new THREE.Projector();
+
+				// grid
+
+				var size = 200, step = 50;
+
+				var geometry = new THREE.Geometry();
+
+				for ( var i = - size; i <= size; i += step ) {
+
+					geometry.vertices.push( new THREE.Vector3( - size, 0, i ) );
+					geometry.vertices.push( new THREE.Vector3(   size, 0, i ) );
+
+					geometry.vertices.push( new THREE.Vector3( i, 0, - size ) );
+					geometry.vertices.push( new THREE.Vector3( i, 0,   size ) );
+
+				}
+
+				var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
+
+				var line = new THREE.Line( geometry, material );
+				line.type = THREE.LinePieces;
+				scene.add( line );
+
+				plane = new THREE.Mesh( new THREE.PlaneGeometry( 400, 400 ), new THREE.MeshBasicMaterial() );
+				plane.rotation.x = - Math.PI / 2;
+				plane.visible = false;
+				scene.add( plane );
+
+				mouse2D = new THREE.Vector3( 0, 10000, 0.5 );
+
+				// Lights
+
+				directionalLight = new THREE.DirectionalLight( 0xffffff );
+				directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+				scene.add( directionalLight );
+				
+				//sound
+				
+				clickSound = new Audio('materials/sound.mp3');
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0xf0f0f0 );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				
+				container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'keydown', onDocumentKeyDown, false );
+				document.addEventListener( 'keyup', onDocumentKeyUp, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+			}
+			//Places the starting markers on the board
+			function initBoard(){
+				gameBoard.placeMarker(3,3,"black");
+				gameBoard.placeMarker(3,4,"white");
+				gameBoard.placeMarker(4,3,"white");
+				gameBoard.placeMarker(4,4,"black");
+				var pos = new THREE.Vector3(0 * 50 + 25,0 * 50 + 25,0 * 50 + 25 );
+				var voxel = new THREE.Mesh( markerGeo, markerMat);
+				voxel.position.copy(pos);
+				voxel.matrixAutoUpdate = false;
+				voxel.scale.set(24,24,24);
+				voxel.updateMatrix();
+				scene.add( voxel );
+				var pos = new THREE.Vector3(-1 * 50 + 25,-1 * 50 + 25,0 * 50 + 25 );
+				var voxel = new THREE.Mesh( markerGeo, markerMat);
+				voxel.position.copy( pos );
+				voxel.matrixAutoUpdate = false;
+				voxel.scale.set(24,24,24);
+				voxel.updateMatrix();
+				scene.add( voxel );
+				var pos = new THREE.Vector3(1 * 50 + 25,0 * 50 + 25,0 * 50 + 25 );
+				var voxel = new THREE.Mesh( markerGeo, markerMat);
+				voxel.position.copy( pos );
+				voxel.matrixAutoUpdate = false;
+				voxel.scale.set(24,24,24);
+				voxel.updateMatrix();
+				scene.add( voxel );
+				var pos = new THREE.Vector3(0 * 50 + 25,-1 * 50 + 25,0 * 50 + 25);
+				var voxel = new THREE.Mesh( markerGeo, markerMat);
+				voxel.position.copy( pos );
+				voxel.matrixAutoUpdate = false;
+				voxel.scale.set(24,24,24);
+				voxel.updateMatrix();
+				scene.add( voxel );
+			
+			}
+			function initPlayers(){
+				var getVars = get_url_params(window.location.href);
+				player1 = new Player(getVars.player1,"black");
+				player2 = new Player(getVars.player2,"white");
+				activePlayer = player1;
+				playerTurn.innerHTML = activePlayer.name;
+				alert(activePlayer.color);
+			}
+			//Thanks to RA2
+			function get_url_params(u){ 
+			 
+			    var theURL = u; 
+			    var JS_GET = new Object(); 
+			    var splitURL = theURL.split('?'); 
+			  
+			    if(splitURL.length>1){ 
+				    var splitVars = splitURL[1].split('&'); 
+					for(i=0; i< splitVars.length; i++){ 
+						splitPair = splitVars[i].split('='); 
+						JS_GET[splitPair[0]] = splitPair[1]; 
+					}   
+					return JS_GET; 
+				}
+				else{
+					return false; 
+			    } 
+			}
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function getRealIntersector( intersects ) {
+
+				for( i = 0; i < intersects.length; i++ ) {
+
+					intersector = intersects[ i ];
+
+					if ( intersector.object != rollOverMesh ) {
+
+						return intersector;
+
+					}
+
+				}
+
+				return null;
+
+			}
+
+			function setVoxelPosition( intersector ) {
+
+				normalMatrix.getNormalMatrix( intersector.object.matrixWorld );
+
+				tmpVec.copy( intersector.face.normal );
+				tmpVec.applyMatrix3( normalMatrix ).normalize();
+
+				voxelPosition.addVectors( intersector.point, tmpVec );
+				voxelPosition.x = Math.floor( voxelPosition.x / 50 ) * 50 + 25;
+				voxelPosition.y = Math.floor( voxelPosition.y / 50 ) * 50 + 25;
+				voxelPosition.z = Math.floor( voxelPosition.z / 50 ) * 50 + 25;
+				
+				tempPosX = ((voxelPosition.x+225)/50)-1;
+				tempPosZ = ((voxelPosition.z+225)/50)-1;
+				
+				if(startFlag == 0){
+					setStartPosition();
+					startFlag = 1;
+				}
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse2D.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			}
+
+			function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				if ( intersects.length > 0 ) {
+
+					intersector = getRealIntersector( intersects );
+
+					// delete cube
+					//For test purposes should be removed before release
+
+					if ( isCtrlDown ) {
+
+						if ( intersector.object != plane ) {
+
+							scene.remove( intersector.object );
+
+						}
+
+					// create cube
+
+					} else {
+						//If move is legal
+						
+						if( intersector.object == plane)//If the object that has been clicked on is the plane
+						{
+							intersector = getRealIntersector( intersects );
+							setVoxelPosition( intersector );
+							
+							if(gameBoard.validMove(tempPosX, tempPosZ, activePlayer.color))
+							{							
+								var newMarker = new Marker(activePlayer.color, returnMarker(tempPosX, tempPosZ));
+								gameBoard.placeMarker(tempPosX,tempPosZ,newMarker);
+								gameBoard.transformMarkers(tempPosX, tempPosZ, activePlayer.color);
+								
+								var i = 0;
+								while(gameBoard.transformedMarker[i][0] != 9){
+									transform(gameBoard.getMarkerObject(gameBoard.transformedMarker[i][0], gameBoard.transformedMarker[i][1]));
+									i++;
+								}
+								
+								if(activePlayer.color=="black"){
+									activePlayer = player2;
+								}
+								else{
+									activePlayer = player1;
+									transform(gameBoard.board[tempPosX][tempPosZ].markerObject);
+								}
+								playerTurn.innerHTML = activePlayer.name;
+								
+								if(gameBoard.isFull())
+								{
+									gameOver = 1;
+								}
+							}
+						}
+
+					}
+
+				}
+			}
+			function transformMarker(posX,posZ,color)
+			{
+				var i = 0;
+				var markerObject;
+				gameBoard.transformMarkers(posX,posZ,color);
+				while(gameBoard.transformedMarker[i][0] != 9)
+				{
+					markerObject = gameBoard.getMarkerObject[transformedMarker[i][0]][transformedMarker[i][1]];
+					changesColor(markerObject);
+					v++;
+				}
+			}
+			
+			function onDocumentKeyDown( event ) {
+
+				switch( event.keyCode ) {
+
+					case 16: isShiftDown = true; break;
+					case 17: isCtrlDown = true; break;
+
+				}
+
+			}
+
+			function onDocumentKeyUp( event ) {
+
+				switch ( event.keyCode ) {
+
+					case 16: isShiftDown = false; break;
+					case 17: isCtrlDown = false; break;
+
+				}
+
+			}
+
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+			}
+
+			function render() {
+				
+				if(gameOver)
+				{
+					gameBoard.getWinner();
+					if(gameBoard.result[0] > gameBoard.result[1])
+					{
+						createPopup(gameBoard.result[0],gameBoard.result[1],player1.name);
+					}
+					else
+					{
+						createPopup(gameBoard.result[0],gameBoard.result[1],player2.name);
+					}
+				}
+				else
+				{
+					if ( isShiftDown ) {
+
+						theta += mouse2D.x * 1.5;
+
+					}
+
+					raycaster = projector.pickingRay( mouse2D.clone(), camera );
+
+					var intersects = raycaster.intersectObjects( scene.children );
+
+					if ( intersects.length > 0 ) {
+
+						intersector = getRealIntersector( intersects );
+						if ( intersector ) {
+
+							setVoxelPosition( intersector );
+							rollOverMesh.position = voxelPosition;
+
+						}
+
+					}
+					camera.position.x = 600 * Math.sin( THREE.Math.degToRad( theta ) );
+					camera.position.z = 600 * Math.cos( THREE.Math.degToRad( theta ) );
+
+					camera.lookAt( scene.position );
+
+					renderer.render( scene, camera );
+				}
+			}
+			function returnMarker(posX, posZ){
+				var voxel = new THREE.Mesh( markerGeo, new THREE.MeshLambertMaterial({color: 0x333333}));
+				voxel.position.x = ((posX+1)*50)-225;
+				voxel.position.y = 25;
+				voxel.position.z = ((posZ+1)*50)-225;;
+				voxel.matrixAutoUpdate = false;
+				voxel.scale.set(24,24,24);
+				voxel.updateMatrix();
+				scene.add( voxel );	
+				return voxel;
+			}
+			
+			
+			function transform(x){
+				if(x.material.color.getHex() == 0x333333)
+					x.material.color.setHex(0xFFFFFF);
+				else if(x.material.color.getHex() == 0xFFFFFF)
+					x.material.color.setHex(0x333333);
+			}
+			
+			function setStartPosition(){
+				gameBoard.board[3][3] = new Marker("white", returnMarker(3, 3));
+				gameBoard.board[3][4] = new Marker("black", returnMarker(3, 4));
+				gameBoard.board[4][3] = new Marker("black", returnMarker(4, 3));
+				gameBoard.board[4][4] = new Marker("white", returnMarker(4, 4));
+				transform(gameBoard.board[3][3].markerObject);
+				transform(gameBoard.board[4][4].markerObject);
+			}
+			
+			function finalPopup(p1Result,p2Result,winner){
+				var popup = document.createElement('div');
+				popup.className = 'popup';
+				popup.id = 'test';
+				var cancel = document.createElement('div');
+				cancel.className = 'cancel';
+				cancel.innerHTML = 'Exit';
+				cancel.onclick = function (e) { popup.parentNode.removeChild(popup) };
+				var message = document.createElement('span');
+				message.innerHTML = "<h2>Congratulations "+ winner +"</h2><br>"+player1.name+" got "+p1Result+" markers<br>"+player2.name+" got "+p2Result+" markers<br><br><br>";
+				var button = document.createElement('button');
+				button.innerHTML = "New Game";
+				button.className = 'button';
+				button.onclick = function(){
+				alert('here be dragons');return false;
+				};
+				popup.appendChild(cancel);
+				popup.appendChild(message);
+				popup.appendChild(button);
+				document.body.appendChild(popup);
+			}
+			</script>
+	</body>
+</html>
