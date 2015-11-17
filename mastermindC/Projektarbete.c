@@ -18,7 +18,7 @@ int main(void)
 	printf("---MASTERMIND---\n\n");/*centrera och förstora*/
 
 		printf("The Objective of Masterimind is to find out a secret code that consist of a\n"
-  "series of symbols these symbols must be UNIQUE.To help the decoding player find\n"
+		"series of symbols these symbols must be UNIQUE.To help the decoding player find\n"
 		"out what the correct numbers are feedback will be recieved after each round.\n"
 		"C for a correct guess\n"
 		"P symbol exist but is in an incorrect position\n"
@@ -37,32 +37,30 @@ int main(void)
 		printf("5:Choose how many numbers should be used(default value is 4)\n");
 		printf("6:Display info\n");
 		printf("Exit : 9\n");
-	 fflush(stdin);
-  scanf("%d", &mode);
+		fflush(stdin);
+		scanf("%d", &mode);
 
 		clearScreen();
 
 		switch(mode)
-			{
-			 case 1:
-     
-					gameEnded = 0;
-					playerTries = 0;
-			  computerPicksKey(size,&symbolUsed,keyNumbers);
-				 do
-					{
-					 fflush(stdin);
-					 scanf("%s",&choosenNumbers[0]);
-					 comparisonNumbers(size,keyNumbers,choosenNumbers,feedback); 
-						playerTries += 1;
-					}while((ifEndOfGame(size,feedback)) != 1);
+		{
+			case 1:
+				gameEnded = 0;
+				playerTries = 0;
+				computerPicksKey(size,&symbolUsed,keyNumbers);
+				do
+				{
+					fflush(stdin);
+					scanf("%s",&choosenNumbers[0]);
+					comparisonNumbers(size,keyNumbers,choosenNumbers,feedback); 
+					playerTries ++ ;
+				}while((ifEndOfGame(size,feedback)) != 1);
 
-					printf("Congratulations, you have found the code!\n");
-					printf("You needed %d tries\n",playerTries);
+				printf("Congratulations, you have found the code!\n");
+				printf("You needed %d tries\n",playerTries);
+				clearScreen();
 
-					clearScreen();
-
-					break;
+				break;
 
 				case 2:
 

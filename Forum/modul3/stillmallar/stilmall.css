@@ -1,0 +1,207 @@
+body 
+{
+	background-color: #36648B;
+}
+#content
+{
+	overflow: auto;
+	clear:both;
+	border-color: gray;
+	border-width: 3px;
+	border-style:solid;
+	padding: 5px;
+}
+#wrapper
+ {
+	width: 960px;
+	background-color: #FFFFFF;
+	margin: 0 55px 0 55px;
+	float:left;
+	padding: 15px;
+	border-color: rgb(118, 121, 124);
+	border-width: 1px;
+	box-shadow: #000000 0px 0px 3px 0px;
+}
+#footer
+{
+	height:150px;
+	FONT-SIZE: medium;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	padding: 5px;
+	text-align: left;
+	line-height: 150px;
+	
+}
+#chatt
+{
+	width:420px;
+	overflow:auto;
+	FONT-SIZE: medium;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	height:900px;
+	background-color: #FFFFFF;
+	padding: 5px;
+}
+.chattRuta
+{	
+	width:380px;
+	height:auto;
+	FONT-SIZE: small;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	margin: 0 5px 5px 5px;
+	padding: 5px;
+	border-color: black;
+	border-width: 2px;
+	border-style:solid;
+	clear:both;
+}
+#formText
+{
+	width:390px;
+	height:100px;
+	FONT-SIZE: medium;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	margin: 0 0 5px 0;
+	padding: 5px;
+	border-color: gray;
+	border-width: 2px;
+	border-style:solid;
+}
+#överskrift
+{
+	width:474px;
+	height:100px;
+	border-color: gray;
+	border-width: 3px;
+	border-style:solid;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float: left;
+	vertical-align: middle; 
+	text-align: center; 
+	margin-bottom:15px;
+}
+#loggaIn
+{
+	width:474px;
+	height:100px;
+	border-color: gray;
+	border-style:solid;
+	border-width: 3px;
+	border-left-style:none;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	line-height: 50px;
+	vertical-align: middle;
+	text-align: center;
+	margin-bottom:15px;	
+}
+.rutorSmå
+{
+	width:208px;
+	height:50px;
+	border-color: gray;
+	border-style:solid;
+	border-width: 3px;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	line-height: 50px;
+	vertical-align: middle; 
+	text-align: center; 
+	margin-bottom:5px;
+}
+.rutorMellan
+{
+	width:308px;
+	height:50px;
+	border-color: gray;
+	border-style:solid;
+	border-width: 3px;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	line-height: 50px;
+	vertical-align: middle; 
+	text-align: center; 
+	margin-bottom:5px;
+}
+
+.rutorStora
+{
+	width:508px;
+	height:50px;
+	border-color: gray;
+	border-style:solid;
+	border-width: 3px;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	line-height: 50px;
+	vertical-align: middle; 
+	text-align: center; 
+	margin-bottom:5px;	
+}
+
+.overskrifter
+{
+	background-color: LightGray;
+}
+.vänster
+{
+	margin: 0px 220px 0px 5px;
+}
+.mitten
+{
+	margin: 0px 150px 0px 0px
+}
+.höger
+{
+	margin: 0px 5px 0px 0px;
+}
+.contentRutor
+{
+	padding: 3px;
+	height:20px;
+	border-color: gray;
+	border-style:solid;
+	border-width: 1px;
+	FONT-SIZE: small;
+	float:left;
+	clear:right;
+	FONT-FAMILY: "Sans-Serif",Arial;
+}
+
+.inlaggText
+{
+	width:308px;
+	height:200px;
+	border-color: black;
+	border-style:solid;
+	border-width: 3px;
+	FONT-SIZE: large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	vertical-align: middle; 
+	text-align: left; 
+	margin-bottom:5px;
+}
+.inlagg
+{
+	width:308px;
+	height:200px;
+	border-color: black;
+	border-style:solid;
+	border-width: 3px;
+	FONT-SIZE: x-large;
+	FONT-FAMILY: "Sans-Serif",Arial;
+	float:left;
+	line-height: 50px;
+	vertical-align: middle; 
+	text-align: center; 
+	margin-bottom:5px;
+}
